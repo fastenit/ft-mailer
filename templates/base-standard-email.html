@@ -1,0 +1,44 @@
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Fasten.it</title>
+</head>
+<body style="margin:0; padding:0;background:#ffffff;" >
+<br/>
+<div align="center" style="width:100%; background:#ffffff;" >
+<table width="640" border="0" cellspacing="0" cellpadding="0">
+    <tr>
+        <td colspan="3" width="640" height="100" valign="top" style="background:#ffffff;">
+            <!-- TODO: Rimuovere il riferimento statico all'url www.fasten.it per evitare l'accoppiamento fra ambienti-->
+            {% block header_part %}
+                <img src="{{ base_protocol|default('https') }}://{{ base_url|default('www.fasten.it') }}/assets/images/standard-email/head-1.png" width="640" height="100" alt="Fasten.it" />
+            {% endblock %}
+        </td>
+    </tr>
+    <tr>
+        <td width="10" valign="top" style="background:#ffffff;">&nbsp;</td>
+        <td width="620" align="left" valign="top" style="background:#ffffff;" >
+            <div style="font-size:14px; color:#333333; font-family: Arial, Helvetica, sans-serif;">
+                <br>
+                {% block content %}
+                    [MSG-HTML]
+                {% endblock %}
+                <br>
+            </div>
+        </td>
+        <td width="10" valign="top" style="background:#ffffff;">&nbsp;</td>
+    </tr>
+    <tr>
+        <td colspan="3" width="640" height="100" valign="top" style="background:#ffffff;">
+            <!-- TODO: Rimuovere il riferimento statico all'url www.fasten.it per evitare l'accoppiamento fra ambienti-->
+            {% block footer_part %}
+                <img src="{{ base_protocol|default('https') }}://{{ base_url|default('www.fasten.it') }}/assets/images/standard-email/foot-2.png" width="640" height="100" alt="Tel: +39620172 | Mobile: +39 392 4225972 | Email: info@fasten.it | Corso XXV Aprile, 175 | 22036 Erba (CO) | ITALY" />
+            {% endblock %}
+        </td>
+    </tr>
+</table>
+</div>
+<br/>
+</body>
+</html>

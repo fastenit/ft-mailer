@@ -1,0 +1,17 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: SAM Template test deployment
+Globals:
+  Function:
+    MemorySize: 128
+    Runtime:  python3.9
+    Timeout: 10
+
+Resources:
+  MailerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: lambda_handler.lambda_handler
+      Environment:
+        Variables:
+          MAILER_ENVIRONMENT:  dev

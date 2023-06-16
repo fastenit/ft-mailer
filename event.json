@@ -1,0 +1,22 @@
+{
+    "Records": [
+        {
+            "EventSource": "aws:sns",
+            "EventVersion": "1.0",
+            "EventSubscriptionArn": "arn:aws:sns:eu-west-1:670247990356:ft-mailer:0b96abdc-f2f3-4bdf-9b23-d56c544d3e75",
+            "Sns": {
+                "Type": "Notification",
+                "MessageId": "587b453f-6e79-58f5-b0ce-1839e52bf887",
+                "TopicArn": "arn:aws:sns:eu-west-1:670247990356:ft-mailer",
+                "Subject": null,
+                "Message": "{\n  \"recipients\": [\n    \"marco.beretta@schmatt.it\",\n    \"tech@fasten.it\"\n  ],\n  \"mail_from\": \"marco.beretta@fasten.it\",\n  \"mail_type\": \"account_activation\",\n  \"lang\": \"it\",\n  \"environment\": \"dev\",\n  \"hydration_data\": {\n    \"base_url\": \"www.fasten.it\",\n    \"base_protocol\": \"https\",\n    \"user_name\": \"Marco\",\n    \"user_surname\": \"Beretta\",\n    \"activation_link_url\": \"https://new.fasten.it/ciccio/ciccio\",\n    \"activation_code\": \"5364323\"\n  }\n}",
+                "Timestamp": "2023-06-16T16:08:50.075Z",
+                "SignatureVersion": "1",
+                "Signature": "hCeuqHNKBlW9O++jIZvbCF8Svxajh9OGbtWiyK4PNAg9f/VEuIwYJZ5JgXfMsyI3c/SRSzPNdIuYHBuwX9ecolRteYWuSaeBPSedGTDAp3AJwe17raN+EXEBxQjqD0gtD8u5lwcQlKlCz/DSzEwzzTmxfdGI+wFtGkAC8oyGm4+Cgkv4CS3N2V4GkTZ48fUR2OWkBuL/FA4OWeDT4gXHA4sJrw65AHM0b8ynehyb9aZyJCSTXNiDXPvARbf12UCKQR5usy8XevCjOgIbucVpoF2T5KmQfJjT7G8bJJGiAuSTyt/sHlG7BpNQYJkJscBgUE7knon2vSjq5AfQ8MgQug==",
+                "SigningCertUrl": "https://sns.eu-west-1.amazonaws.com/SimpleNotificationService-01d088a6f77103d0fe307c0069e40ed6.pem",
+                "UnsubscribeUrl": "https://sns.eu-west-1.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:eu-west-1:670247990356:ft-mailer:0b96abdc-f2f3-4bdf-9b23-d56c544d3e75",
+                "MessageAttributes": {}
+            }
+        }
+    ]
+}

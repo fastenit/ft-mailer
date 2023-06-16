@@ -1,0 +1,11 @@
+{% extends "base-standard-email.html" %}
+{% block content %}
+    <h1>Activate your Fasten.it account!<br><br> You're just a click away!</h1>
+    <p class="important">
+      Hello {{ user_name }} {{ user_surname }}, <br><br>
+      Click on <a href="https://onboarding.fasten.it/activate/{{ user_name }}">https://onboarding.fasten.it/activate/{{ user_name }}</a> e fill the following activation code:<br><br>
+
+      {{ activation_code }}
+      <br><br>
+    </p>
+{% endblock %}
