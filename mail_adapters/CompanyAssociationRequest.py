@@ -21,7 +21,13 @@ logging.basicConfig(
 logger.info("Logging at {} level".format(os.environ.get("LOG_LEVEL", "DEBUG")))
 
 
-class AccountActivationAdapter(BaseAdapter):
+class CompanyAssociationRequestAdapter(BaseAdapter):
+
+    '''
+    This adapter composes the emails that must be sent to the
+    "ADMINS" of a specific company when a new account is created and should be
+    linked to an existing company
+    '''
 
     account_id: str = None
     account: Account = None
@@ -34,6 +40,8 @@ class AccountActivationAdapter(BaseAdapter):
             loader=FileSystemLoader("templates"),
             autoescape=select_autoescape()
         )
+        
+        self.message = self._sns_record.Sns.Message
         
         self._inflate_hydration_data()
         

@@ -24,7 +24,7 @@ class MailerMessage(BaseModel):
     recipients: List[EmailStr] = []
     mail_from: Union[EmailStr, None] = None
     mail_type: str
-    lang: str
+    lang: Union[str, None]
     hydration_data: dict = {}
 
 
@@ -34,7 +34,15 @@ class AccountActivationHydrationData(BaseModel):
         extra = "allow"
 
     account_id: str
-    lang: str = "en"
+
+
+class CompanyAssociationRequestHydrationData(BaseModel):
+
+    class Config:
+        extra = "allow"
+
+    requesting_account_id: str
+    target_company_id: str
 
 
 class SnsNotification(BaseModel):
