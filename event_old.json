@@ -9,7 +9,7 @@
                 "MessageId": "587b453f-6e79-58f5-b0ce-1839e52bf887",
                 "TopicArn": "arn:aws:sns:eu-west-1:670247990356:ft-mailer",
                 "Subject": null,
-                "Message": "{\n  \"recipients\": [\n    \"marco.beretta@schmatt.it\",\n    \"tech@fasten.it\"\n  ],\n  \"mail_from\": \"marco.beretta@fasten.it\",\n  \"mail_type\": \"account_activation\",\n  \"lang\": \"it\",\n  \"environment\": \"dev\",\n  \"hydration_data\": {\n    \"account_id\": \"110d476a-b66e-4c41-818b-c659a5a5ea2d\"}\n}",
+                "Message": "{\n  \"recipients\": [\n    \"marco.beretta@schmatt.it\",\n    \"tech@fasten.it\"\n  ],\n  \"mail_from\": \"marco.beretta@fasten.it\",\n  \"mail_type\": \"account_activation\",\n  \"lang\": \"it\",\n  \"environment\": \"dev\",\n  \"hydration_data\": {\n    \"base_url\": \"www.fasten.it\",\n    \"base_protocol\": \"https\",\n    \"user_name\": \"Marco\",\n    \"user_surname\": \"Beretta\",\n    \"activation_link_url\": \"https://new.fasten.it/ciccio/ciccio\",\n    \"activation_code\": \"5364323\"\n  }\n}",
                 "Timestamp": "2023-06-16T16:08:50.075Z",
                 "SignatureVersion": "1",
                 "Signature": "hCeuqHNKBlW9O++jIZvbCF8Svxajh9OGbtWiyK4PNAg9f/VEuIwYJZ5JgXfMsyI3c/SRSzPNdIuYHBuwX9ecolRteYWuSaeBPSedGTDAp3AJwe17raN+EXEBxQjqD0gtD8u5lwcQlKlCz/DSzEwzzTmxfdGI+wFtGkAC8oyGm4+Cgkv4CS3N2V4GkTZ48fUR2OWkBuL/FA4OWeDT4gXHA4sJrw65AHM0b8ynehyb9aZyJCSTXNiDXPvARbf12UCKQR5usy8XevCjOgIbucVpoF2T5KmQfJjT7G8bJJGiAuSTyt/sHlG7BpNQYJkJscBgUE7knon2vSjq5AfQ8MgQug==",

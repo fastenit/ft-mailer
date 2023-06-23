@@ -1,17 +1,19 @@
 from __future__ import print_function
 
-import csv
 import json
 import os
 import sys
-import zlib
 import logging
 
+from model.pydantic.models import SnsEvent, SnsRecord
 from time import strftime, gmtime
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from jinja2 import Template, FileSystemLoader
 from jinja2 import Environment, select_autoescape
+from services.data_service import DataService
+
+from mail_adapters.AccountActivation import AccountActivationAdapter
 
 import boto3
 import concurrent.futures
@@ -102,6 +104,16 @@ def get_parameters(event):
     return message
 
 
+def get_adapter_class(sns_record: SnsRecord):
+
+    mailer_message = sns_record.Sns.get_mailer_message()
+        
+    if mailer_message.mail_type == "account_activation":
+        return AccountActivationAdapter
+
+    raise Exception(f"Non c'è un adattatore per l'invio di questo tipo di email {mailer_message.mail_type}")    
+
+
 def lambda_handler(event, context):
 
     env = Environment(
@@ -109,61 +121,86 @@ def lambda_handler(event, context):
         autoescape=select_autoescape()
     )
     
+    data_service = DataService("192.168.1.1", 3306, "root", "bulunat", "fasten")
 
+    e = concurrent.futures.ThreadPoolExecutor(max_workers=max_threads)
 
-    global mime_message_text
-    global mime_message_html
+    
+    # global mime_message_text
+    # global mime_message_html
 
     try:
-        args = get_parameters(event)
+        sns_event = SnsEvent.parse_obj(event)
 
-        if args["recipients"]:
-            recipients = args["recipients"]
-        else:
-            recipients = []
+        for record in sns_event.Records:
+            
+            adptr_cls = get_adapter_class(record)
+            adapter = adptr_cls(record, data_service)
+            
+            for mail in adapter.mails_to_send():
+                message = mime_email(
+                    mail.subject,
+                    mail.from_addr,
+                    mail.to,
+                    [],
+                    [],
+                    mail.html_string
+                )
+                e.submit(
+                    send_mail, mail.from_addr, mail.to, None, None, message
+                )
+        
+        e.shutdown()
+                            
 
-        if args["lang"]:
-            lang = args["lang"]
-        else:
-            lang = "en" # Defaults to EN
+        # args = get_parameters(event)
 
-        mail_type = args["mail_type"]
+        # if args["recipients"]:
+        #     recipients = args["recipients"]
+        # else:
+        #     recipients = []
 
-        t = env.get_template(lang + "/" + mail_type + ".html")
-        # Read the message files
-        try:
-            mime_message_text = t.render(args["hydration_data"])
-        except Exception as e:
-            logger.info(e)
-            mime_message_text = None
-            logger.info(
-                "Failed to read text message file. Did you upload %s?"
-                % args["mail_type"]
-            )
+        # if args["lang"]:
+        #     lang = args["lang"]
+        # else:
+        #     lang = "en" # Defaults to EN
 
-        if not mime_message_text:
-            raise ValueError("Cannot continue without a text or html message file.")
+        # mail_type = args["mail_type"]
+
+        # t = env.get_template(lang + "/" + mail_type + ".html")
+        # # Read the message files
+        # try:
+        #     mime_message_text = t.render(args["hydration_data"])
+        # except Exception as e:
+        #     logger.info(e)
+        #     mime_message_text = None
+        #     logger.info(
+        #         "Failed to read text message file. Did you upload %s?"
+        #         % args["mail_type"]
+        #     )
+
+        # if not mime_message_text:
+        #     raise ValueError("Cannot continue without a text or html message file.")
 
         # Send in parallel using several threads
-        e = concurrent.futures.ThreadPoolExecutor(max_workers=max_threads)
-        for recipient in recipients:
-            from_address = args["mail_from"]
-            to_address = recipient
+        # for recipient in recipients:
+        #     from_address = args["mail_from"]
+        #     to_address = recipient
 
-            subject = "Benvenuto, ora attiva il tuo account Fasten.it"
+        #     subject = "Benvenuto, ora attiva il tuo account Fasten.it"
 
-            message = mime_email(
-                subject,
-                from_address,
-                to_address,
-                [],
-                [],
-                mime_message_text
-            )
-            e.submit(
-                send_mail, from_address, to_address, None, None, message
-            )
-        e.shutdown()
+        #     message = mime_email(
+        #         subject,
+        #         from_address,
+        #         to_address,
+        #         [],
+        #         [],
+        #         mime_message_text
+        #     )
+        #     e.submit(
+        #         send_mail, from_address, to_address, None, None, message
+        #     )
+        # e.shutdown()
     except Exception as e:
         logger.exception("Aborting... " + str(e))
         raise e
