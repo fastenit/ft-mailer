@@ -1,9 +1,15 @@
-# aws-sns-to-ses-mailer
+# ft-mailer - Transactional Mailer for Fasten.it
+
 AWS Lambda application to send emails via AWS SES using information recieved from AWS SNS notification
 
 ## Usage
 
-This lambda is used in DataWorks to send out emails when needed. It is not used for any daily BAU purposes. The lambda is deployed via the `aws-common-infrastructure` repository.
+This lambda is intended to be invoked by a sns notification comimng from a specific Topic and receives a payload
+containing the following information.
+
+* The type of transactional email that is to be sent
+* The fallback language that the email should be sent over, if the handler is not able to determine a language
+* Some metadata that is needed by the  Mailing Adapter for the specific type of email to inflate the email/text/subject 
 
 ### Templates
 

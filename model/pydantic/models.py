@@ -21,14 +21,21 @@ class MailerMessage(BaseModel):
     class Config:
         extra = "allow"
 
-    recipients: List[EmailStr] = []
-    mail_from: Union[EmailStr, None] = None
     mail_type: str
-    lang: Union[str, None]
+    override_lang_with: Union[str, None]
     hydration_data: dict = {}
 
 
-class AccountActivationHydrationData(BaseModel):
+class BaseHydrationData(BaseModel):
+
+    class Config:
+        extra = "allow"
+
+    base_domain: str = "www.fasten.it"# This is the base url to use when sending the email should be like https://new.fsasten.it
+    base_protocol: str = "https" # This is the base url to use when sending the email should be like https://new.fsasten.it
+    
+
+class AccountActivationHydrationData(BaseHydrationData):
 
     class Config:
         extra = "allow"
@@ -36,7 +43,7 @@ class AccountActivationHydrationData(BaseModel):
     account_id: str
 
 
-class CompanyAssociationRequestHydrationData(BaseModel):
+class CompanyAssociationRequestHydrationData(BaseHydrationData):
 
     class Config:
         extra = "allow"

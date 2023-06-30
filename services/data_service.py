@@ -1,7 +1,8 @@
 from sqlalchemy.engine import Engine
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
-from model.sqlalchemy.Models import Account
+from sqlalchemy.orm import joinedload
+from model.sqlalchemy.Models import Account, Utente
 import urllib
 
 class DataService():
@@ -27,10 +28,19 @@ class DataService():
         self._engine = create_engine(url=self.dsn)
 
 
-    def get_account_by_id(self, account_id):
+    def get_account_by_id(self, account_id) -> Account:
 
         with Session(self._engine) as session:
             res = session.query(Account).filter_by(id=account_id).one_or_none()
+            if res is None:
+                return None
+            else:
+                return res
+
+    def get_company_by_id(self, company_id: int) -> Utente:
+
+        with Session(self._engine) as session:
+            res = session.query(Utente).options(joinedload('*')).filter_by(id=company_id).one_or_none()
             if res is None:
                 return None
             else:

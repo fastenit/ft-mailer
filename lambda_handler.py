@@ -4,6 +4,7 @@ import json
 import os
 import sys
 import logging
+import configparser
 
 from model.pydantic.models import SnsEvent, SnsRecord
 from email.mime.multipart import MIMEMultipart
@@ -11,6 +12,7 @@ from email.mime.text import MIMEText
 from services.data_service import DataService
 
 from mail_adapters.AccountActivation import AccountActivationAdapter
+from mail_adapters.CompanyAssociationRequest import CompanyAssociationRequestAdapter
 
 import boto3
 import concurrent.futures
@@ -18,28 +20,29 @@ import concurrent.futures
 # Get Lambda environment variables
 region = os.environ.get("REGION", "eu-west-1")
 max_threads = int(os.environ.get("MAX_THREADS", 1))
-
-if "SES_MAILER_REGION" in os.environ:
-    ses_mailer_region = os.environ["SES_MAILER_REGION"]
-else:
-    ses_mailer_region = "eu-west-1"
+ses_mailer_region = os.environ.get("SES_MAILER_REGION", "eu-west-1")
+log_level = os.environ.get("LOG_LEVEL", "INFO").upper()
+environment = os.environ.get("ENV", "STG").upper()
 
 # Initialise logging
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.getLevelName(os.environ.get("LOG_LEVEL", "DEBUG").upper()))
+logger.setLevel(logging.getLevelName(log_level))
 logging.basicConfig(
     stream=sys.stdout,
     format="%(asctime)s %(levelname)s %(module)s "
     "%(process)s[%(thread)s] %(message)s",
 )
-logger.info("Logging at {} level".format(os.environ.get("LOG_LEVEL", "DEBUG")))
+logger.info("Logging at {} level".format(log_level))
+
+config = configparser.ConfigParser()
+config.read("ENV_" + environment + '.ini')
+
+print(config.sections())
 
 # Initialise clients
 boto3.setup_default_session(profile_name=os.environ.get("AWS_PROFILE", "fasten"))
 
-ses = boto3.client(
-    "ses", region_name=ses_mailer_region if ses_mailer_region else region
-)
+ses = boto3.client("ses", region_name=ses_mailer_region)
 
 def mime_email(
     subject,
@@ -114,6 +117,9 @@ def get_adapter_class(sns_record: SnsRecord):
     if mailer_message.mail_type == "account_activation":
         return AccountActivationAdapter
 
+    if mailer_message.mail_type == "account_company_association_request":
+        return CompanyAssociationRequestAdapter
+
     raise Exception(f"Non c'è un adattatore per l'invio di questo tipo di email {mailer_message.mail_type}")    
 
 
@@ -129,7 +135,7 @@ def lambda_handler(event, context):
         for record in sns_event.Records:
             
             adptr_cls = get_adapter_class(record)
-            adapter = adptr_cls(record, data_service)
+            adapter = adptr_cls(record, data_service, environment)
             
             for mail in adapter.mails_to_send():
                 e.submit(
@@ -143,6 +149,8 @@ def lambda_handler(event, context):
         raise e
 
 
+# This is used in order to test locally the lambda
+
 if __name__ == "__main__":
-    json_content = json.loads(open("event.json", "r").read())
+    json_content = json.loads(open("event_association.json", "r").read())
     lambda_handler(json_content, None)

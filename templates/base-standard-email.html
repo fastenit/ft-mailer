@@ -12,7 +12,7 @@
         <td colspan="3" width="640" height="100" valign="top" style="background:#ffffff;">
             <!-- TODO: Rimuovere il riferimento statico all'url www.fasten.it per evitare l'accoppiamento fra ambienti-->
             {% block header_part %}
-                <img src="{{ base_protocol|default('https') }}://{{ base_url|default('www.fasten.it') }}/assets/images/standard-email/head-1.png" width="640" height="100" alt="Fasten.it" />
+                <img src="{{ base_protocol|default('https') }}://{{ base_domain|default('www.fasten.it') }}/assets/images/standard-email/head-1.png" width="640" height="100" alt="Fasten.it" />
             {% endblock %}
         </td>
     </tr>

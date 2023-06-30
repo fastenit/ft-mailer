@@ -1,0 +1,33 @@
+{% extends "base-standard-email.html" %}
+{% block content %}
+    <h1>{{ req_user_name }} {{ req_user_surname }} vuole essere associato a {{ tgt_company_name }} su Fasten.it<br></h1>
+    <p class="important">
+      Ciao {{ tgt_user_name }} {{ tgt_user_surname }}, <br><br>
+
+      {{ req_user_name }} {{ req_user_surname }} ({{ req_user_email }}) si è appena registrato su Fasten.it e vuole essere associato alla azienda {{ tgt_company_name }}, della quale tu sei amministratore.
+      <br><br>
+      Se accetti richiesta, {{ req_user_name }} potrà: <br>
+      <br>
+      <ul>
+        <li>Inserire richieste a nome della tua azienda</li>
+        <li>Rispondere ad altre richieste a nome della tua azienda</li>
+        <li>Interagire con altre aziende e utenti di Fasten.it a nome della tua azienda</li>
+        <li>[TODO] Scrivere altro???</li>
+      </ul>
+      <br><br>
+      Altrimenti, rifiutando la richiesta, {{ req_user_name }} non potrà accedere alle informazioni della tua azienda e operare su Fasten.it a nome di {{ tgt_company_name }}.
+      
+      <h2 style="align: center;">Accetta</h2>
+      <h2 style="align: center;">Rifiuta</h2>
+      <br><br>
+      Questa mail è stata inviata anche a: 
+      <br>
+      <ul>
+        <li>federica@fasten.it</li>
+        <li>andrea@fasten.it</li>
+        <li>info@fasten.it</li>
+      </ul>
+      <br>
+      Questi account sono amministratori di {{ tgt_company_name }}, pertanto possono autorizzare/rifiutare questa richiesta. 
+    </p>
+{% endblock %}

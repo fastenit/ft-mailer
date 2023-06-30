@@ -1,10 +1,11 @@
 {% extends "base-standard-email.html" %}
 {% block content %}
-    <h1>Attiva il tuo account Fasten.it!</h1>
+    <h1>Attiva il tuo nuovo account Fasten.it!<br> Ti manca solo un click!</h1>
     <p class="important">
-      Clicca su <a href="https://onboarding.fasten.it/activate/{{ user_name }}">https://onboarding.fasten.it/activate/{{ user_name }}</a>  e inserisci il codice di attivazione<br><br>
+      Ciao {{ user_name }} {{ user_surname }}, <br> grazie per esserti registrato su Fasten.it.<br><br>
+      Per attivare il tuo account e poter accedere a Fasten.it, clicca su <a href="{{activation_link_base_url}}{{ account_id }}">{{activation_link_base_url}}{{ account_id }}</a> e inserisci il seguente codice di attivazione:<br><br>
 
-      435623
+      <h2 style="align: center;">{{ activation_code }}</h2>
       <br><br>
     </p>
 {% endblock %}

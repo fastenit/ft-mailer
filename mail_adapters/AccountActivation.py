@@ -1,6 +1,6 @@
 from typing import Iterable
 from mail_adapters.BaseAdapter import BaseAdapter
-from model.pydantic.models import MailerMessage, SnsRecord, AccountActivationHydrationData
+from model.pydantic.models import MailerMessage, SnsRecord, AccountActivationHydrationData, BaseHydrationData
 from model.sqlalchemy.Models import Account
 from services.data_service import DataService
 from jinja2 import Template, FileSystemLoader
@@ -25,93 +25,92 @@ class AccountActivationAdapter(BaseAdapter):
 
     account_id: str = None
     account: Account = None
-    _jinja_env = None
-
-    def __init__(self, sns_record: SnsRecord, data_service: DataService):
-        super().__init__(sns_record, data_service=data_service)
         
-        self._jinja_env = Environment(
-            loader=FileSystemLoader("templates"),
-            autoescape=select_autoescape()
-        )
-        
-        self._inflate_hydration_data()
-        
-    def mails_to_send(self) -> Iterable[MailToSend]:
+                
+    def _get_mails_to_send_iterator(self) -> Iterable[MailToSend]:
         
         '''
         This function return an iterable with all the email that should be sent
         out in response to the SNS notification
         '''
         
-        for recipient in self._get_recipients():
+        hydration_data = self._get_data_to_inflate()
+        
+        for recipient in self._get_recipients(hydration_data):
         
             mts = MailToSend(
-                subject = self._produce_subject(),
-                html_string = self._produce_html_message(),
+                subject = self._produce_subject(hydration_data),
+                html_string = self._produce_html_message(hydration_data),
                 text_string = "",
                 from_addr = self._get_mail_from(),
-                to = [recipient]
+                to = [recipient],
+                cc = [],
+                bcc = []
             )
             
             yield mts
                     
-
-
+    @property    
+    def message_hydration_data(self) -> AccountActivationHydrationData:
+        return  AccountActivationHydrationData.parse_obj(self.mailer_message.hydration_data)
+        
     
-    def _inflate_hydration_data(self):
+    def _get_data_to_inflate(self):
 
         '''
         This function get the information in the sns message and inflate all the informations needed to send the email
-        notification
-        
-        - recipients
-        - language
-        - subject string
-            
+        notification            
         '''
-        
-        mailer_message_data: MailerMessage = self._sns_record.Sns.get_mailer_message()         
-        mailer_hydration_data =  AccountActivationHydrationData.parse_obj(mailer_message_data.hydration_data)
                 
-        self.account = self._data_service.get_account_by_id(mailer_hydration_data.account_id)
-        self.account_id = mailer_hydration_data.account_id
-        self.mail_type = self._sns_record.Sns.get_mailer_message().mail_type
+        self.account = self._data_service.get_account_by_id(self.message_hydration_data.account_id)
         self.pref_lang = self.account.language if self.account.language in ['it', 'en', 'uk', 'de'] else 'en'
         self.pref_lang = self.pref_lang if self.pref_lang != 'uk' else 'en'
-
         
+        if self.override_lang_with is not None:
+            self.pref_lang = self.override_lang_with
+            
+        if self._env == "DEV":
+            activation_base_url = f"{self.message_hydration_data.base_protocol}://onboarding-dev.fasten.it/activate/"
+        elif self._env == "STG":
+            activation_base_url = f"{self.message_hydration_data.base_protocol}://onboarding-stg.fasten.it/activate/"
+        elif self._env == "PRD":
+            activation_base_url = f"{self.message_hydration_data.base_protocol}://onboarding-prd.fasten.it/activate/"
+        else:
+            activation_base_url = f"{self.message_hydration_data.base_protocol}://onboarding-dev.fasten.it/activate/"
 
-    def _get_recipients(self):
-        return [self.account.email]
+        hydration_data = {
+            "base_domain": self.message_hydration_data.base_domain,
+            "base_protocol": self.message_hydration_data.base_protocol,
+            "account_email": self.account.email,
+            "account_id": self.account.id,
+            "user_name": self.account.name,
+            "user_surname": self.account.surname,
+            "activation_link_base_url": activation_base_url,
+            "activation_code": self.account.auth_code
+        }
+        
+        return hydration_data
+
+    def _get_recipients(self, hydration_data: dict):
+        return [hydration_data.get("account_email")]
                 
 
     def _get_mail_from(self):
         return "noreply@fasten.it"
 
-    def _produce_subject(self):
+    def _produce_subject(self, hydration_data: dict):
         if self.pref_lang == "it":
             return "Attiva il tuo account Fasten.it!"
         elif self.pref_lang == "de":
-            return "[DE] Attiva il tuo account Fasten.it!"
+            return "Attiva il tuo account Fasten.it!"
         else:
             return "Activate your new Fasten.it account!"
 
-    def _produce_html_message(self):
-        mail_type = self._sns_record.Sns.get_mailer_message().mail_type
-        pref_lang = self.account.language if self.account.language in ['it', 'en', 'uk', 'de'] else 'en'
-        pref_lang = pref_lang if pref_lang != 'uk' else 'en'
+    def _produce_html_message(self, hydration_data: dict):
+        # pref_lang = self.account.language if self.account.language in ['it', 'en', 'uk', 'de'] else 'en'
+        # pref_lang = pref_lang if pref_lang != 'uk' else 'en'
 
-        t = self._jinja_env.get_template(pref_lang + "/" + mail_type + ".html")
-
-        hydration_data = {
-            "base_url": "www.fasten.it",
-            "base_protocol": "https",
-            "user_name": self.account.name,
-            "user_surname": self.account.surname,
-            "activation_link_url": "https://new.fasten.it/ciccio/ciccio",
-            "activation_code": self.account.auth_code
-        }
+        t = self._jinja_env.get_template(self.pref_lang + "/" + self.mail_type + ".html")
 
         # Read the message files
         try:
