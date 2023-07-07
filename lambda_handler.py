@@ -24,6 +24,12 @@ ses_mailer_region = os.environ.get("SES_MAILER_REGION", "eu-west-1")
 log_level = os.environ.get("LOG_LEVEL", "INFO").upper()
 environment = os.environ.get("ENV", "STG").upper()
 
+mysql_hostname = os.environ.get("MYSQL_HOSTNAME", "192.168.1.1")
+mysql_port = os.environ.get("MYSQL_PORT", 3306)
+mysql_username = os.environ.get("MYSQL_USERNAME", "root")
+mysql_password = os.environ.get("MYSQL_PASSWORD", "bulunat")
+mysql_db = os.environ.get("MYSQL_DB", "fasten")
+
 # Initialise logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.getLevelName(log_level))
@@ -40,7 +46,7 @@ config.read("ENV_" + environment + '.ini')
 print(config.sections())
 
 # Initialise clients
-boto3.setup_default_session(profile_name=os.environ.get("AWS_PROFILE", "fasten"))
+boto3.setup_default_session()
 
 ses = boto3.client("ses", region_name=ses_mailer_region)
 
@@ -125,7 +131,7 @@ def get_adapter_class(sns_record: SnsRecord):
 
 def lambda_handler(event, context):
 
-    data_service = DataService("192.168.1.1", 3306, "root", "bulunat", "fasten")
+    data_service = DataService(mysql_hostname, mysql_port, mysql_username, mysql_password, mysql_db)
 
     e = concurrent.futures.ThreadPoolExecutor(max_workers=max_threads)
 
